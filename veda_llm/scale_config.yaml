@@ -1,0 +1,63 @@
+# ASTRA-X HYPER-SCALE CONFIGURATION
+# Target: 100,000 Concurrent Requests
+# Infrastructure: Kubernetes + KubeRay
+
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: veda-inference-cluster
+spec:
+  rayVersion: '2.9.0'
+  # 1. Head Node (Orchestrator)
+  headGroupSpec:
+    serviceType: ClusterIP
+    rayStartParams:
+      dashboard-host: '0.0.0.0'
+    template:
+      spec:
+        containers:
+          - name: ray-head
+            image: rayproject/ray:2.9.0-py310-gpu
+            resources:
+              limits:
+                cpu: "4"
+                memory: "16Gi"
+
+  # 2. Worker Nodes (Inference Engines)
+  # Auto-scaling group for GPUs
+  workerGroupSpecs:
+    - groupName: gpu-group
+      replicas: 50 # Start with 50 GPUs
+      minReplicas: 10
+      maxReplicas: 800 # Scale to 800 GPUs for 100k users
+      rayStartParams: {}
+      template:
+        spec:
+          containers:
+            - name: ray-worker
+              image: veda-llm:v1.0
+              resources:
+                limits:
+                  nvidia.com/gpu: 1 # 1 GPU per pod
+                  cpu: "8"
+                  memory: "32Gi"
+              volumeMounts:
+                - mountPath: /models
+                  name: model-cache
+          nodeSelector:
+            accelerator: nvidia-a100 # Use A100s for max throughput
+
+---
+# 3. Load Balancer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: veda-service
+spec:
+  selector:
+    ray.io/cluster: veda-inference-cluster
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer # Maps to AWS ALB / Cloud Load Balancer

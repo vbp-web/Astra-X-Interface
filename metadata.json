@@ -1,0 +1,7 @@
+{
+  "name": "Astra-X Interface",
+  "description": "The official interface for Astra-X, India's No.1 AI system. Experience GPT-5.1 reasoning combined with Claude 3.7 clarity.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
