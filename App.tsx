@@ -73,7 +73,7 @@ const App: React.FC = () => {
 ### 4. Implementation Code
 I have generated the following files for you in the \`veda_llm/\` directory:
 *   \`veda_llm/train.py\`: Full PyTorch training loop with QLoRA.
-*   \`veda_llm/api_server.py\`: FastAPI backend with streaming.
+*   \`veda_llm/api_server.py\`: Ray Serve backend with auto-scaling.
 *   \`veda_llm/requirements.txt\`: Dependencies.
 
 ### 5. Deployment
@@ -312,7 +312,7 @@ It allows "Pipeline Parallelism". We can split the model across multiple GPUs an
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={config.mode === 'deep' ? "Ask a complex question..." : "Ask Astra-X..."}
+              placeholder={config.mode === 'deep' ? "Ask a complex reasoning question..." : "Ask Astra-X..."}
               className={`
                 w-full bg-deep-card text-white placeholder-slate-400 rounded-2xl border 
                 ${config.mode === 'deep' ? 'border-purple-500/30 focus:border-purple-500' : 'border-deep-border focus:border-blue-500'}
@@ -355,7 +355,7 @@ It allows "Pipeline Parallelism". We can split the model across multiple GPUs an
           </div>
           <div className="text-center mt-2">
             <p className="text-[10px] text-slate-500">
-                Astra-X 
+                Astra-X
             </p>
           </div>
         </div>
